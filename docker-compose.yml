@@ -1,0 +1,39 @@
+version: '3'
+
+x-environment: &environment
+  POSTGRES_HOST: database
+  POSTGRES_DB: database
+  POSTGRES_USER: postgres
+  POSTGRES_HOST_AUTH_METHOD: trust
+
+services:
+  app:
+    build: .
+    image: xmplaylist-ruby
+    environment:
+      <<: *environment
+    volumes:
+      - './:/app'
+    tmpfs:
+      - '/app/tmp'
+    ports:
+      - "3000:3000"
+    working_dir: /app
+    command: 'rails server -b 0.0.0.0 -p 3000'
+
+  tailwind:
+    image: xmplaylist-ruby
+    tty: true
+    volumes:
+      - './:/app'
+    working_dir: /app
+    command: 'rails tailwindcss:watch'
+
+  database:
+    image: postgres
+    environment:
+      <<: *environment
+    ports:
+      - "5432:5432"
+    expose:
+      - "5432"
